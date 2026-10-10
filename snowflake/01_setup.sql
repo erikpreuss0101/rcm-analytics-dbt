@@ -1,0 +1,43 @@
+-- Step 1: one-time Snowflake setup for the rcm-analytics-dbt project.
+-- Run this whole script in a Snowsight worksheet while signed in as your trial admin user.
+
+USE ROLE ACCOUNTADMIN;
+
+-- A small warehouse that shuts itself off after 60 seconds idle, to protect the free credits
+CREATE WAREHOUSE IF NOT EXISTS TRANSFORM_WH
+  WAREHOUSE_SIZE = 'XSMALL'
+  AUTO_SUSPEND = 60
+  AUTO_RESUME = TRUE
+  INITIALLY_SUSPENDED = TRUE;
+
+-- RAW holds the untouched source files; ANALYTICS is where dbt builds models
+CREATE DATABASE IF NOT EXISTS RAW;
+CREATE SCHEMA IF NOT EXISTS RAW.SYNTHEA;
+CREATE DATABASE IF NOT EXISTS ANALYTICS;
+
+-- One role that both you and dbt Cloud use
+CREATE ROLE IF NOT EXISTS TRANSFORMER;
+GRANT USAGE ON WAREHOUSE TRANSFORM_WH TO ROLE TRANSFORMER;
+GRANT USAGE ON DATABASE RAW TO ROLE TRANSFORMER;
+GRANT ALL ON SCHEMA RAW.SYNTHEA TO ROLE TRANSFORMER;
+GRANT SELECT ON FUTURE TABLES IN SCHEMA RAW.SYNTHEA TO ROLE TRANSFORMER;
+GRANT ALL ON DATABASE ANALYTICS TO ROLE TRANSFORMER;
+
+SET my_user = CURRENT_USER();
+GRANT ROLE TRANSFORMER TO USER IDENTIFIER($my_user);
+
+-- File format and stage for the Synthea files
+USE ROLE TRANSFORMER;
+USE SCHEMA RAW.SYNTHEA;
+
+CREATE FILE FORMAT IF NOT EXISTS CSV_SKIP_HEADER
+  TYPE = CSV
+  SKIP_HEADER = 1
+  FIELD_OPTIONALLY_ENCLOSED_BY = '"'
+  EMPTY_FIELD_AS_NULL = TRUE
+  COMPRESSION = AUTO;
+
+CREATE STAGE IF NOT EXISTS SYNTHEA_STAGE;
+
+-- Next: upload the 8 files in data/ to RAW > SYNTHEA > Stages > SYNTHEA_STAGE in Snowsight,
+-- then run 02_create_and_load_raw.sql.
