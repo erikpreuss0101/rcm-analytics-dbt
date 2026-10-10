@@ -2,7 +2,12 @@
   "permissions": {
     "allow": [
       "PowerShell(winget install --id Git.Git -e --source winget --accept-package-agreements --accept-source-agreements)",
-      "PowerShell($env:PATH += \";C:\\\\Program Files\\\\Git\\\\bin\"; git --version)"
+      "PowerShell($env:PATH += \";C:\\\\Program Files\\\\Git\\\\bin\"; git --version)",
+      "PowerShell($env:PATH += \";C:\\\\Program Files\\\\Git\\\\bin\"; git config --get credential.helper; git config --global --get credential.helper; where.exe git-credential-manager 2>$null)",
+      "PowerShell(cmdkey /delete:\"LegacyGeneric:target=GitHub - https://api.github.com/erikpreuss0101\")",
+      "PowerShell(Start-Process cmdkey -ArgumentList '/delete:LegacyGeneric:target=GitHub - https://api.github.com/erikpreuss0101' -NoNewWindow -Wait -PassThru)",
+      "PowerShell(cmd.exe /c 'cmdkey /delete:\"LegacyGeneric:target=GitHub - https://api.github.com/erikpreuss0101\"')",
+      "PowerShell(cmdkey /list)"
     ]
   }
 }
