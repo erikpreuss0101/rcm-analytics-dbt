@@ -2,7 +2,9 @@ target/
 dbt_packages/
 logs/
 .user.yml
-profiles.yml
 *.p8
 *.pem
 .DS_Store
+.venv/
+*.duckdb
+dbt_internal_packages/

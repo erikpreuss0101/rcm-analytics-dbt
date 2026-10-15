@@ -1,0 +1,14 @@
+sources:
+  - name: synthea
+    config:
+      meta:
+        external_location: "read_csv_auto('data/{name}.csv.gz', header=true)"
+    tables:
+      - name: claims
+      - name: claims_transactions
+      - name: encounters
+      - name: organizations
+      - name: patients
+      - name: payer_transitions
+      - name: payers
+      - name: providers
